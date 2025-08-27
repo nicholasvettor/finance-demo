@@ -1,0 +1,341 @@
+---
+type: Always
+description: Rules for building a finance sentiment analysis dashboard with ShadCN UI components and Next.js
+globs: ["**/*.tsx", "**/*.ts", "**/*.css"]
+---
+
+# Finance Sentiment Analysis Dashboard Development Rules
+
+## Project Structure Requirements
+
+Always organize the project with this structure:
+```
+src/
+├── app/
+│   ├── dashboard/
+│   │   └── page.tsx      # Main dashboard page
+│   ├── globals.css       # Global styles and CSS variables
+│   ├── layout.tsx        # Root layout
+│   └── page.tsx          # Landing page
+├── components/
+│   ├── ui/               # ShadCN components (imported from @/components/ui)
+│   ├── dashboard/        # Dashboard-specific components
+│   │   ├── stock-card.tsx
+│   │   ├── stock-grid.tsx
+│   │   ├── add-stock-modal.tsx
+│   │   └── stock-detail-modal.tsx
+│   ├── landing/          # Landing page sections
+│   │   ├── hero-section.tsx
+│   │   ├── features-section.tsx
+│   │   └── cta-section.tsx
+│   └── layout/           # Layout components
+│       ├── navbar.tsx
+│       └── footer.tsx
+├── lib/
+│   ├── utils.ts          # Utility functions and cn() helper
+│   ├── types.ts          # TypeScript interfaces
+│   └── api.ts            # API helper functions
+├── hooks/
+│   ├── use-stocks.ts     # Stock data management
+│   └── use-research.ts   # Research functionality
+└── store/
+    └── stocks-store.ts   # Global state management
+```
+
+## ShadCN Component Usage
+
+- ALWAYS use ShadCN components from `@/components/ui`
+- Primary components: Button, Card, Dialog, Input, Badge, Separator, Form, Label, Skeleton, Toast
+- Use `cn()` utility from `@/lib/utils` for conditional classes
+- Follow ShadCN's design tokens and CSS custom properties
+
+## Required ShadCN Components
+
+Install these specific components:
+```bash
+npx shadcn-ui@latest add button card dialog input label badge separator skeleton toast form
+```
+
+## Landing Page Structure (app/page.tsx)
+
+Build the landing page with these sections in order:
+
+1. **Hero Section**
+   - Large headline about finance sentiment analysis
+   - Subheading explaining the demo purpose
+   - Primary CTA button linking to dashboard
+   - Clean, modern design with subtle gradients
+
+2. **Features Section**
+   - 3-4 feature cards showcasing key capabilities
+   - Stock research automation
+   - Sentiment analysis visualization
+   - Real-time data updates
+   - User-friendly dashboard interface
+
+3. **Demo Information Section**
+   - Explanation that this is a demo project
+   - What users can expect to see/do
+   - Technology stack highlights
+
+4. **CTA Section**
+   - Final call-to-action to try the dashboard
+   - Navigation button to dashboard page
+
+## Dashboard Page Structure (app/dashboard/page.tsx)
+
+The dashboard MUST include:
+
+1. **Dashboard Header**
+   - Page title "Finance Sentiment Dashboard"
+   - Subtitle or description
+   - Add Stock button (primary action)
+
+2. **Stock Grid**
+   - Responsive grid layout (1-5 columns based on screen size)
+   - Grid classes: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5`
+   - Consistent gap spacing: `gap-4 md:gap-6`
+
+3. **Add Stock Button**
+   - Prominent placement in header or as floating action
+   - Opens AddStockModal when clicked
+
+## Component Implementation Rules
+
+### StockCard Component
+
+MUST include these props and features:
+```typescript
+interface StockCardProps {
+  id: string;
+  stockName: string;
+  exchangeName: string;
+  articlesCount: number;
+  sentiment?: 'positive' | 'negative' | 'neutral';
+  lastResearched?: Date;
+  isResearching?: boolean;
+  onClick: () => void;
+}
+```
+
+**Required features:**
+- Clickable Card component with hover effects
+- Status badge showing sentiment or research state
+- Loading skeleton when `isResearching` is true
+- Consistent padding and spacing
+- Visual hierarchy with stock name as primary text
+
+### AddStockModal Component
+
+MUST include these form fields:
+```typescript
+interface NewStockData {
+  stockName: string;        // Required text input
+  exchangeName: string;     // Required text input  
+  articlesCount: number;    // Required number input (min: 1, max: 100)
+}
+```
+
+**Required features:**
+- Dialog component from ShadCN
+- Form validation using Zod schema
+- Loading state during submission
+- Error handling and display
+- Close on escape key and backdrop click
+
+### StockDetailModal Component
+
+MUST include these sections:
+```typescript
+interface StockDetailModalProps {
+  stock: Stock;
+  isOpen: boolean;
+  onClose: () => void;
+  onResearch: (articlesCount: number) => Promise<void>;
+}
+```
+
+**Required sections:**
+1. **Header**: Stock name as h2
+2. **Metadata section**: Name, exchange, last researched date
+3. **Graph/Chart area**: Placeholder for custom sentiment visualization
+4. **Separator**: Visual divider
+5. **Research section**: Number input + Research button
+
+## State Management Rules
+
+### Use Zustand for Global State
+
+Create a stocks store with these actions:
+```typescript
+interface StocksStore {
+  stocks: Stock[];
+  addStock: (stock: NewStockData) => Promise<void>;
+  updateStock: (id: string, updates: Partial<Stock>) => void;
+  deleteStock: (id: string) => void;
+  researchStock: (id: string, articlesCount: number) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+}
+```
+
+### Stock Interface Definition
+
+```typescript
+interface Stock {
+  id: string;
+  stockName: string;
+  exchangeName: string;
+  articlesCount: number;
+  sentiment?: 'positive' | 'negative' | 'neutral';
+  sentimentScore?: number; // -1 to 1
+  lastResearched?: Date;
+  isResearching: boolean;
+  createdAt: Date;
+}
+```
+
+## Styling and Layout Rules
+
+### Color Scheme for Financial Data
+
+```css
+:root {
+  --sentiment-positive: 134 239 172;  /* Green */
+  --sentiment-negative: 248 113 113;  /* Red */ 
+  --sentiment-neutral: 251 191 36;    /* Yellow */
+  --chart-primary: 59 130 246;        /* Blue */
+  --chart-secondary: 168 85 247;      /* Purple */
+}
+```
+
+### Responsive Grid Requirements
+
+- Mobile (default): 1 column
+- Tablet (md): 2 columns  
+- Desktop (lg): 3 columns
+- Large (xl): 4 columns
+- Extra large (2xl): 5 columns
+
+Always use: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6`
+
+### Loading States
+
+MUST implement these loading patterns:
+- Skeleton placeholders for cards during initial load
+- Spinner or pulse animation during research operations
+- Disabled states for buttons during async operations
+- Toast notifications for success/error feedback
+
+## Modal and Dialog Rules
+
+### Modal Behavior Requirements
+
+- Focus trapping within modal
+- Close on Escape key press
+- Close on backdrop click
+- Scroll lock on body when modal open
+- Accessible ARIA labels and descriptions
+
+### Form Validation Rules
+
+Use Zod schemas for all form validation:
+```typescript
+const addStockSchema = z.object({
+  stockName: z.string().min(1, "Stock name is required").max(10, "Stock name too long"),
+  exchangeName: z.string().min(1, "Exchange name is required").max(10, "Exchange name too long"), 
+  articlesCount: z.number().min(1, "Must research at least 1 article").max(100, "Maximum 100 articles")
+});
+```
+
+## API Integration Rules
+
+### Mock Data Implementation
+
+Since this is a demo, implement mock API functions:
+```typescript
+// lib/api.ts
+export const mockResearchStock = async (stockData: NewStockData): Promise<Stock> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // Return mock sentiment data
+  return {
+    ...stockData,
+    id: generateId(),
+    sentiment: getRandomSentiment(),
+    sentimentScore: getRandomScore(),
+    isResearching: false,
+    lastResearched: new Date(),
+    createdAt: new Date()
+  };
+};
+```
+
+### Research Simulation
+
+- Show loading state for 2-3 seconds minimum
+- Generate random but realistic sentiment data
+- Update UI optimistically where possible
+- Handle mock errors to demonstrate error states
+
+## Navigation Rules
+
+### Landing to Dashboard Flow
+
+- Landing page CTA button navigates to `/dashboard`
+- Dashboard has link back to landing page
+- Use Next.js `useRouter` for programmatic navigation
+- Smooth page transitions
+
+### URL Structure
+
+- Landing page: `/` (root)
+- Dashboard: `/dashboard`
+- No authentication routes needed (demo only)
+
+## Performance Requirements
+
+- Implement lazy loading for modal components
+- Use React.memo for StockCard components
+- Debounce search/filter inputs if implemented
+- Optimize re-renders with proper dependency arrays
+
+## Accessibility Requirements
+
+- All interactive elements have proper ARIA labels
+- Keyboard navigation support for all features
+- Color contrast ratios meet WCAG standards
+- Screen reader friendly content structure
+- Focus management in modals and dialogs
+
+## Development Workflow
+
+1. Start with landing page implementation
+2. Build basic dashboard layout and navigation
+3. Implement StockCard and StockGrid components
+4. Add AddStockModal with form validation
+5. Implement StockDetailModal with research functionality
+6. Add loading states and error handling
+7. Polish with animations and micro-interactions
+8. Test responsive design across breakpoints
+
+## Demo Data Requirements
+
+Include sample stock data for immediate demonstration:
+```typescript
+const sampleStocks: Stock[] = [
+  {
+    id: "1",
+    stockName: "AAPL",
+    exchangeName: "NASDAQ",
+    articlesCount: 25,
+    sentiment: "positive",
+    sentimentScore: 0.7,
+    lastResearched: new Date(Date.now() - 86400000), // 1 day ago
+    isResearching: false,
+    createdAt: new Date(Date.now() - 172800000) // 2 days ago
+  }
+  // Add 2-3 more sample stocks
+];
+```
